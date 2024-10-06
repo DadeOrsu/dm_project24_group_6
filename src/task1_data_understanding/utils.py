@@ -58,3 +58,10 @@ def plot_msno_matrix(missing_values_df):
     y_ticks=np.linspace(y_start,y_end,len(years))
 
     plt.yticks(ticks=y_ticks,labels=years)
+
+def plot_races_mv(races_df,url_df):
+    races_mv_df=races_df
+    races_mv_df['url_name']=url_df['name']
+    races_mv_df=races_mv_df.groupby('url_name').apply(lambda x: x.isnull().sum())
+    races_mv_ord=races_mv_df.sum(axis=1).sort_values().index
+    races_mv_df[mv_cols].reindex(races_mv_ord).plot(kind='barh',stacked=True,figsize=(20,10),title='missing values per race',xlabel='missing value counts',ylabel='race name',use_index=True)
