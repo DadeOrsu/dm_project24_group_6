@@ -1,10 +1,33 @@
 #utils for task 1
 import matplotlib.pyplot as plt
+import missingno as msno
+import numpy as np
+
+
+RACES_DTYPES={
+            '_url':'str',
+            'name':'str',
+            'points':'Int64',
+            'uci_points':'Int64',
+            'length':'Int64',
+            'climb_total':'Int64',
+            'profile':'str',
+            'starlist_quality':'Int64',
+            'average_temperature':'float64',
+            'position':'Int64',
+            'cyclist':'str',
+            'is_tarmac':'bool',
+            'is_cobbled':'bool',
+            'is_gravel':'bool',
+            'cyclist_team':'str',
+            'date':'datetime64'
+}
+
 def plot_missing_values_barplot(missing_values_df):
     values=missing_values_df[missing_values_df['missing values %']>0]['missing values %']
-    values['all other values']=0
+    values['all other features']=0
     bars=values.sort_values(ascending=False).plot(kind='bar',figsize=(15,10),ylim=[0,100])
-    plt.title('missing values %')
+    plt.title('missing values percentage')
     plt.xlabel('features')
     plt.ylabel('missing values %')
     plt.xticks(rotation=0, ha='center')
@@ -15,3 +38,23 @@ def plot_missing_values_barplot(missing_values_df):
                 h, 
                 str(h), 
                 ha='center', va='bottom')
+
+def plot_msno_matrix(missing_values_df):
+    msno.matrix(
+            missing_values_df.set_index('date').sort_index(),
+            sparkline=False,
+            figsize=(10,30)
+        )
+    years=list(missing_values_df['date'].dt.year.sort_values().unique())
+    years
+
+    locs,labels=plt.yticks()
+
+    plt.title('Missing values distribution across years')
+
+    y_start=locs[0]
+    y_end=locs[1]
+
+    y_ticks=np.linspace(y_start,y_end,len(years))
+
+    plt.yticks(ticks=y_ticks,labels=years)
