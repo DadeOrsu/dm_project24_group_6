@@ -1,8 +1,9 @@
 #utils for task 1
+import re
 import matplotlib.pyplot as plt
 import missingno as msno
 import numpy as np
-
+import unicodedata
 
 RACES_DTYPES={
             '_url':'str',
@@ -24,6 +25,20 @@ RACES_DTYPES={
 }
 
 def plot_missing_values_barplot(missing_values_df):
+    """
+    Plots a bar plot of the percentage of missing values per feature.
+
+    Parameters:
+    ----------
+    missing_values_df : pd.DataFrame
+        A DataFrame containing the features and their corresponding missing value percentages.
+        The DataFrame should have a column named 'missing values %' which contains the percentage
+        of missing values for each feature.
+
+    Returns:
+    -------
+    None
+    """
     values=missing_values_df[missing_values_df['missing values %']>0]['missing values %']
     values['all other features']=0
     bars=values.sort_values(ascending=False).plot(kind='bar',figsize=(15,10),ylim=[0,100])
@@ -40,6 +55,19 @@ def plot_missing_values_barplot(missing_values_df):
                 ha='center', va='bottom')
 
 def plot_msno_matrix(missing_values_df):
+    """
+    Plots a matrix visualization of missing values using missingno's matrix plot.
+
+    Parameters:
+    ----------
+    missing_values_df : pd.DataFrame
+        A DataFrame that contains the data, including the 'date' column to visualize missing data
+        distribution over time.
+
+    Returns:
+    -------
+    None
+    """
     msno.matrix(
             missing_values_df.set_index('date').sort_index(),
             sparkline=False,
@@ -59,9 +87,33 @@ def plot_msno_matrix(missing_values_df):
 
     plt.yticks(ticks=y_ticks,labels=years)
 
-def plot_races_mv(races_df,url_df):
+def plot_races_mv(races_df,url_df,mv_cols):
+    """
+    Plots a stacked horizontal bar chart showing the missing values for selected columns per race.
+
+    Parameters:
+    ----------
+    races_df : pd.DataFrame
+        The DataFrame containing race data.
+    
+    url_df : pd.DataFrame
+        A DataFrame containing URL and race names for mapping purposes.
+    
+    mv_cols : list of str
+        A list of column names that represent the fields to check for missing values.
+    
+    Returns:
+    -------
+    None
+    """
     races_mv_df=races_df
     races_mv_df['url_name']=url_df['name']
     races_mv_df=races_mv_df.groupby('url_name').apply(lambda x: x.isnull().sum())
     races_mv_ord=races_mv_df.sum(axis=1).sort_values().index
     races_mv_df[mv_cols].reindex(races_mv_ord).plot(kind='barh',stacked=True,figsize=(20,10),title='missing values per race',xlabel='missing value counts',ylabel='race name',use_index=True)
+def normalize_text(text):
+    #remove all accents,diacritic characters etc.etc.
+    text = unicodedata.normalize('NFKD', text).encode('ASCII', 'ignore').decode('utf-8')
+    #remove non alphanumeric value from the text
+    text=re.sub(r'[^a-zA-Z0-9\s]', '', text)
+    return text.lower()
