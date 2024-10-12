@@ -65,3 +65,14 @@ def plot_races_mv(races_df,url_df):
     races_mv_df=races_mv_df.groupby('url_name').apply(lambda x: x.isnull().sum())
     races_mv_ord=races_mv_df.sum(axis=1).sort_values().index
     races_mv_df[mv_cols].reindex(races_mv_ord).plot(kind='barh',stacked=True,figsize=(20,10),title='missing values per race',xlabel='missing value counts',ylabel='race name',use_index=True)
+
+def find_outliers(data, column):
+    Q1 = data[column].quantile(0.25)
+    Q3 = data[column].quantile(0.75)
+    IQR = Q3 - Q1
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+    
+    outliers = data[(data[column] < lower_bound) | (data[column] > upper_bound)]
+    
+    return outliers[[column]]
