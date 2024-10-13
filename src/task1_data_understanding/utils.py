@@ -143,6 +143,17 @@ def find_outliers(data, column):
     outliers = data[(data[column] < lower_bound) | (data[column] > upper_bound)]
     
     return outliers[[column]]
+
+def find_outliers(data, column):
+    Q1 = data[column].quantile(0.25)
+    Q3 = data[column].quantile(0.75)
+    IQR = Q3 - Q1
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+    
+    outliers = data[(data[column] < lower_bound) | (data[column] > upper_bound)]
+    
+    return outliers[[column]]
 def normalize_text(text):
     #remove all accents,diacritic characters etc.etc.
     text = unicodedata.normalize('NFKD', text).encode('ASCII', 'ignore').decode('utf-8')
