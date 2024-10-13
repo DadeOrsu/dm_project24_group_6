@@ -2,3 +2,5 @@
 ./datataset/
 src/dataset/cyclists.csv
 src/dataset/races.csv
+src/task1_data_understanding/geodata.csv
+src/task1_data_understanding/races_api_data.json
