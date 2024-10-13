@@ -1,1 +1,4 @@
 *.pdf
+./datataset/
+src/dataset/cyclists.csv
+src/dataset/races.csv

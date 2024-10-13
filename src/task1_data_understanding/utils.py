@@ -4,7 +4,17 @@ import matplotlib.pyplot as plt
 import missingno as msno
 import numpy as np
 import unicodedata
-
+import random
+import time
+from procyclingstats import Stage
+from concurrent.futures import ThreadPoolExecutor,as_completed
+from tqdm import tqdm
+import requests
+from fp.fp import FreeProxy
+from functools import partial
+import geopy
+import itertools as it
+import time
 RACES_DTYPES={
             '_url':'str',
             'name':'str',
@@ -111,9 +121,95 @@ def plot_races_mv(races_df,url_df,mv_cols):
     races_mv_df=races_mv_df.groupby('url_name').apply(lambda x: x.isnull().sum())
     races_mv_ord=races_mv_df.sum(axis=1).sort_values().index
     races_mv_df[mv_cols].reindex(races_mv_ord).plot(kind='barh',stacked=True,figsize=(20,10),title='missing values per race',xlabel='missing value counts',ylabel='race name',use_index=True)
+
+def find_outliers(data, column):
+    Q1 = data[column].quantile(0.25)
+    Q3 = data[column].quantile(0.75)
+    IQR = Q3 - Q1
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+    
+    outliers = data[(data[column] < lower_bound) | (data[column] > upper_bound)]
+    
+    return outliers[[column]]
+
+def find_outliers(data, column):
+    Q1 = data[column].quantile(0.25)
+    Q3 = data[column].quantile(0.75)
+    IQR = Q3 - Q1
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+    
+    outliers = data[(data[column] < lower_bound) | (data[column] > upper_bound)]
+    
+    return outliers[[column]]
 def normalize_text(text):
     #remove all accents,diacritic characters etc.etc.
     text = unicodedata.normalize('NFKD', text).encode('ASCII', 'ignore').decode('utf-8')
     #remove non alphanumeric value from the text
     text=re.sub(r'[^a-zA-Z0-9\s]', '', text)
     return text.lower()
+def fetch_from_procyclingstas(races_df,races_path,delay_seconds=5,num_proxies=100,num_workers=200):
+    races_url=list(races_df['_url'].unique())
+    session=requests.Session()
+    fp = FreeProxy(rand=True)
+    user_agents = [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.5938.132 Safari/537.36",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_5_2) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Safari/605.1.15",
+        "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.5938.132 Mobile Safari/537.36",
+        "Mozilla/5.0 (Linux; Android 12; SM-G998B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.5938.132 Mobile Safari/537.36",
+        "Mozilla/5.0 (Windows NT 11.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.5938.132 Safari/537.36",
+        "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.5938.132 Safari/537.36",
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
+        "Mozilla/5.0 (iPad; CPU OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+        "Mozilla/5.0 (Linux; Android 10; Nexus 5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.5938.132 Mobile Safari/537.36",
+        "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:78.0) Gecko/20100101 Firefox/78.0"
+    ]
+    proxies=[]
+    with ThreadPoolExecutor(max_workers=num_workers) as tpe:
+        proxies=list(tpe.map(lambda _:fp.get(),range(num_proxies)))
+
+    def fetch_race(url,delay):
+        session.headers.update({
+            'User-Agent':random.choice(user_agents)
+        })
+        proxy= random.choice(proxies)
+        session.proxies={
+            'http':proxy,
+            'https':proxy
+        }
+        stage=Stage("race/"+url)
+        time.sleep(delay)
+        return stage
+
+    res={}
+
+    results=[]
+    i=0
+    with ThreadPoolExecutor(max_workers=num_workers) as tpe:
+        futures={tpe.submit(fetch_race,url,delay_seconds):url for url in races_url}
+        pbar=tqdm(total=len(futures),desc="loading data from procyclingstats")  
+        for future in as_completed(futures):
+            try:
+                pbar.update(1)
+                race=future.result()
+                new_row=race.parse()
+                new_row['url']=futures[future]
+                results.append(new_row)
+            except Exception as e:
+                print(e)
+                pass
+    with open(races_path,'w') as f:
+        json.dump(results,f,indent=6)
+
+def map_place_to_point(stages_df,geolocator):
+    places=set(stages_df['arrival'])
+    places.update(set(stages_df['departure']))
+    places.remove('')
+    geocode = partial(geolocator.geocode, language="en")
+    places_info=[]
+    for place in tqdm(places,total=len(places)):
+        places_info.append(geocode(place))
+        time.sleep(1)
+    places_info=[info for info in places_info if info!=None]
+    return places_info
