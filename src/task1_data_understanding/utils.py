@@ -1,4 +1,4 @@
-#utils for task 1
+# utils for task 1
 import re
 import matplotlib.pyplot as plt
 import missingno as msno
@@ -7,32 +7,33 @@ import unicodedata
 import random
 import time
 from procyclingstats import Stage
-from concurrent.futures import ThreadPoolExecutor,as_completed
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from tqdm import tqdm
 import requests
 from fp.fp import FreeProxy
 from functools import partial
-import geopy
-import itertools as it
-import time
-RACES_DTYPES={
-            '_url':'str',
-            'name':'str',
-            'points':'Int64',
-            'uci_points':'Int64',
-            'length':'Int64',
-            'climb_total':'Int64',
-            'profile':'str',
-            'starlist_quality':'Int64',
-            'average_temperature':'float64',
-            'position':'Int64',
-            'cyclist':'str',
-            'is_tarmac':'bool',
-            'is_cobbled':'bool',
-            'is_gravel':'bool',
-            'cyclist_team':'str',
-            'date':'datetime64'
+import json
+
+
+RACES_DTYPES = {
+            '_url': 'str',
+            'name': 'str',
+            'points': 'Int64',
+            'uci_points': 'Int64',
+            'length': 'Int64',
+            'climb_total': 'Int64',
+            'profile': 'str',
+            'starlist_quality': 'Int64',
+            'average_temperature': 'float64',
+            'position': 'Int64',
+            'cyclist': 'str',
+            'is_tarmac': 'bool',
+            'is_cobbled': 'bool',
+            'is_gravel': 'bool',
+            'cyclist_team': 'str',
+            'date': 'datetime64'
 }
+
 
 def plot_missing_values_barplot(missing_values_df):
     """
@@ -49,20 +50,18 @@ def plot_missing_values_barplot(missing_values_df):
     -------
     None
     """
-    values=missing_values_df[missing_values_df['missing values %']>0]['missing values %']
-    values['all other features']=0
-    bars=values.sort_values(ascending=False).plot(kind='bar',figsize=(15,10),ylim=[0,100])
+    values = missing_values_df[missing_values_df['missing values %'] > 0]['missing values %']
+    values['all other features'] = 0
+    bars = values.sort_values(ascending=False).plot(kind='bar', figsize=(15, 10), ylim=[0, 100])
     plt.title('missing values percentage')
     plt.xlabel('features')
     plt.ylabel('missing values %')
     plt.xticks(rotation=0, ha='center')
     # adding percentage values above bars
     for bar in bars.patches:
-        h=bar.get_height()
-        plt.text(bar.get_x() + bar.get_width() / 2, 
-                h, 
-                str(h), 
-                ha='center', va='bottom')
+        h = bar.get_height()
+        plt.text(bar.get_x() + bar.get_width() / 2, h, str(h), ha='center', va='bottom')
+
 
 def plot_msno_matrix(missing_values_df):
     """
@@ -81,23 +80,24 @@ def plot_msno_matrix(missing_values_df):
     msno.matrix(
             missing_values_df.set_index('date').sort_index(),
             sparkline=False,
-            figsize=(10,30)
+            figsize=(10, 30)
         )
-    years=list(missing_values_df['date'].dt.year.sort_values().unique())
+    years = list(missing_values_df['date'].dt.year.sort_values().unique())
     years
 
-    locs,labels=plt.yticks()
+    locs, labels = plt.yticks()
 
     plt.title('Missing values distribution across years')
 
-    y_start=locs[0]
-    y_end=locs[1]
+    y_start = locs[0]
+    y_end = locs[1]
 
-    y_ticks=np.linspace(y_start,y_end,len(years))
+    y_ticks = np.linspace(y_start, y_end, len(years))
 
-    plt.yticks(ticks=y_ticks,labels=years)
+    plt.yticks(ticks=y_ticks, labels=years)
 
-def plot_races_mv(races_df,url_df,mv_cols):
+
+def plot_races_mv(races_df, url_df, mv_cols):
     """
     Plots a stacked horizontal bar chart showing the missing values for selected columns per race.
 
@@ -116,11 +116,12 @@ def plot_races_mv(races_df,url_df,mv_cols):
     -------
     None
     """
-    races_mv_df=races_df
-    races_mv_df['url_name']=url_df['name']
-    races_mv_df=races_mv_df.groupby('url_name').apply(lambda x: x.isnull().sum())
-    races_mv_ord=races_mv_df.sum(axis=1).sort_values().index
-    races_mv_df[mv_cols].reindex(races_mv_ord).plot(kind='barh',stacked=True,figsize=(20,10),title='missing values per race',xlabel='missing value counts',ylabel='race name',use_index=True)
+    races_mv_df = races_df
+    races_mv_df['url_name'] = url_df['name']
+    races_mv_df = races_mv_df.groupby('url_name').apply(lambda x: x.isnull().sum())
+    races_mv_ord = races_mv_df.sum(axis=1).sort_values().index
+    races_mv_df[mv_cols].reindex(races_mv_ord).plot(kind='barh', stacked=True, figsize=(20, 10), title='missing values per race', xlabel='missing value counts', ylabel='race name', use_index=True)
+
 
 def find_outliers(data, column):
     Q1 = data[column].quantile(0.25)
@@ -128,41 +129,21 @@ def find_outliers(data, column):
     IQR = Q3 - Q1
     lower_bound = Q1 - 1.5 * IQR
     upper_bound = Q3 + 1.5 * IQR
-    
     outliers = data[(data[column] < lower_bound) | (data[column] > upper_bound)]
-    
     return outliers[[column]]
 
-def find_outliers(data, column):
-    Q1 = data[column].quantile(0.25)
-    Q3 = data[column].quantile(0.75)
-    IQR = Q3 - Q1
-    lower_bound = Q1 - 1.5 * IQR
-    upper_bound = Q3 + 1.5 * IQR
-    
-    outliers = data[(data[column] < lower_bound) | (data[column] > upper_bound)]
-    
-    return outliers[[column]]
 
-def find_outliers(data, column):
-    Q1 = data[column].quantile(0.25)
-    Q3 = data[column].quantile(0.75)
-    IQR = Q3 - Q1
-    lower_bound = Q1 - 1.5 * IQR
-    upper_bound = Q3 + 1.5 * IQR
-    
-    outliers = data[(data[column] < lower_bound) | (data[column] > upper_bound)]
-    
-    return outliers[[column]]
 def normalize_text(text):
-    #remove all accents,diacritic characters etc.etc.
+    # remove all accents,diacritic characters etc.etc.
     text = unicodedata.normalize('NFKD', text).encode('ASCII', 'ignore').decode('utf-8')
-    #remove non alphanumeric value from the text
-    text=re.sub(r'[^a-zA-Z0-9\s]', '', text)
+    # remove non alphanumeric value from the text
+    text = re.sub(r'[^a-zA-Z0-9\s]', '', text)
     return text.lower()
-def fetch_from_procyclingstas(races_df,races_path,delay_seconds=5,num_proxies=100,num_workers=200):
-    races_url=list(races_df['_url'].unique())
-    session=requests.Session()
+
+
+def fetch_from_procyclingstas(races_df, races_path, delay_seconds=5, num_proxies=100, num_workers=200):
+    races_url = list(races_df['_url'].unique())
+    session = requests.Session()
     fp = FreeProxy(rand=True)
     user_agents = [
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.5938.132 Safari/537.36",
@@ -176,51 +157,48 @@ def fetch_from_procyclingstas(races_df,races_path,delay_seconds=5,num_proxies=10
         "Mozilla/5.0 (Linux; Android 10; Nexus 5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.5938.132 Mobile Safari/537.36",
         "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:78.0) Gecko/20100101 Firefox/78.0"
     ]
-    proxies=[]
+    proxies = []
     with ThreadPoolExecutor(max_workers=num_workers) as tpe:
-        proxies=list(tpe.map(lambda _:fp.get(),range(num_proxies)))
+        proxies = list(tpe.map(lambda _: fp.get(), range(num_proxies)))
 
-    def fetch_race(url,delay):
+    def fetch_race(url, delay):
         session.headers.update({
-            'User-Agent':random.choice(user_agents)
+            'User-Agent': random.choice(user_agents)
         })
-        proxy= random.choice(proxies)
-        session.proxies={
-            'http':proxy,
-            'https':proxy
+        proxy = random.choice(proxies)
+        session.proxies = {
+            'http': proxy,
+            'https': proxy
         }
-        stage=Stage("race/"+url)
+        stage = Stage("race/"+url)
         time.sleep(delay)
         return stage
-
-    res={}
-
-    results=[]
-    i=0
+    results = []
     with ThreadPoolExecutor(max_workers=num_workers) as tpe:
-        futures={tpe.submit(fetch_race,url,delay_seconds):url for url in races_url}
-        pbar=tqdm(total=len(futures),desc="loading data from procyclingstats")  
+        futures = {tpe.submit(fetch_race, url, delay_seconds): url for url in races_url}
+        pbar = tqdm(total=len(futures), desc="loading data from procyclingstats")
         for future in as_completed(futures):
             try:
                 pbar.update(1)
-                race=future.result()
-                new_row=race.parse()
-                new_row['url']=futures[future]
+                race = future.result()
+                new_row = race.parse()
+                new_row['url'] = futures[future]
                 results.append(new_row)
             except Exception as e:
                 print(e)
                 pass
-    with open(races_path,'w') as f:
-        json.dump(results,f,indent=6)
+    with open(races_path, 'w') as f:
+        json.dump(results, f, indent=6)
 
-def map_place_to_point(stages_df,geolocator):
-    places=set(stages_df['arrival'])
+
+def map_place_to_point(stages_df, geolocator):
+    places = set(stages_df['arrival'])
     places.update(set(stages_df['departure']))
     places.remove('')
     geocode = partial(geolocator.geocode, language="en")
-    places_info=[]
-    for place in tqdm(places,total=len(places)):
+    places_info = []
+    for place in tqdm(places, total=len(places)):
         places_info.append(geocode(place))
         time.sleep(1)
-    places_info=[info for info in places_info if info!=None]
+    places_info = [info for info in places_info if info is not None]
     return places_info
