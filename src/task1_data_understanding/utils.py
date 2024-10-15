@@ -1,18 +1,20 @@
 # utils for task 1
+# from procyclingstats import Stage
+
+"""import random
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import requests
+from fp.fp import FreeProxy
+import json
+"""
 import re
 import matplotlib.pyplot as plt
 import missingno as msno
 import numpy as np
 import unicodedata
-import random
 import time
-from procyclingstats import Stage
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from tqdm import tqdm
-import requests
-from fp.fp import FreeProxy
 from functools import partial
-import json
 
 
 RACES_DTYPES = {
@@ -141,6 +143,7 @@ def normalize_text(text):
     return text.lower()
 
 
+"""
 def fetch_from_procyclingstas(races_df, races_path, delay_seconds=5, num_proxies=100, num_workers=200):
     races_url = list(races_df['_url'].unique())
     session = requests.Session()
@@ -189,6 +192,7 @@ def fetch_from_procyclingstas(races_df, races_path, delay_seconds=5, num_proxies
                 pass
     with open(races_path, 'w') as f:
         json.dump(results, f, indent=6)
+"""
 
 
 def map_place_to_point(stages_df, geolocator):
