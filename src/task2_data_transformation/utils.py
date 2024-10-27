@@ -20,11 +20,8 @@ def detect_outliers_isolation_forest(df, columns, contamination=0.05):
         'anomaly' indicating the outliers.
     """
     df_cleaned = df[columns].dropna()
-
     iso_forest = IsolationForest(contamination=contamination, random_state=42)
-
     df_cleaned['anomaly'] = iso_forest.fit_predict(df_cleaned[columns])
-
     df['anomaly'] = None
     df.loc[df_cleaned.index, 'anomaly'] = df_cleaned['anomaly']
 
@@ -53,9 +50,7 @@ def detect_outliers_lof(df, columns, contamination=0.05, n_neighbors=20):
 
     lof = LocalOutlierFactor(n_neighbors=n_neighbors,
                              contamination=contamination)
-
     predictions = lof.fit_predict(data)
-
     df['anomaly_lof'] = None
     df.loc[data.index, 'anomaly_lof'] = predictions
 
@@ -102,12 +97,8 @@ def detect_outliers_iqr(df, column):
     """
     Q1 = df[column].quantile(0.25)
     Q3 = df[column].quantile(0.75)
-
     IQR = Q3 - Q1
-
     lower_bound = Q1 - 1.5 * IQR
     upper_bound = Q3 + 1.5 * IQR
-
     outliers = df[(df[column] < lower_bound) | (df[column] > upper_bound)]
-
     return outliers
