@@ -206,3 +206,12 @@ def map_place_to_point(stages_df, geolocator):
         time.sleep(1)
     places_info = [info for info in places_info if info is not None]
     return places_info
+
+def stages_order(stage):
+    is_alpha=stage[-1].isalpha()
+    v= stage if not is_alpha else stage[:-1]
+    ord_val=int(v)*10
+    if is_alpha:
+        c=stage[-1]
+        ord_val+=1 if c=='a' else 2
+    return ord_val
