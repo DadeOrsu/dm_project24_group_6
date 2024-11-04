@@ -15,7 +15,8 @@ import unicodedata
 import time
 from tqdm import tqdm
 from functools import partial
-
+import pandas as pd
+from sklearn.impute import SimpleImputer
 
 RACES_DTYPES = {
             '_url': 'str',
@@ -206,12 +207,59 @@ def map_place_to_point(stages_df, geolocator):
         time.sleep(1)
     places_info = [info for info in places_info if info is not None]
     return places_info
+def plot_cyclist_team_mv(races_df,mv_cols):
+    races_mv_df=races_df
+    races_mv_df=races_mv_df.groupby('cyclist_team').apply(lambda x: x.isnull().sum())
+    races_mv_ord=races_mv_df.sum(axis=1).sort_values().index
+    races_mv_df[mv_cols].reindex(races_mv_ord).plot(kind='barh',stacked=True,figsize=(20,20),title='missing values per cyclist_team',xlabel='missing value counts',ylabel=f'race name for {len(races_mv_df)} races',use_index=True)
 
 def stages_order(stage):
-    is_alpha=stage[-1].isalpha()
-    v= stage if not is_alpha else stage[:-1]
+    stage_val=stage.split('-')[1]
+    
+    is_alpha=stage_val[-1].isalpha()
+    v= stage_val if not is_alpha else stage_val[:-1]
     ord_val=int(v)*10
     if is_alpha:
-        c=stage[-1]
+        c=stage_val[-1]
         ord_val+=1 if c=='a' else 2
     return ord_val
+
+def handle_missing_df(races_df,cyclist_df):
+    rec_races_df=races_df.copy()
+    mt_idx=races_df['cyclist_team'].isna()
+
+    def map_to_team(row):
+        return f"{row['nationality'].lower()}-{row['date'].year}"
+
+    rec_races_df.loc[mt_idx,'cyclist_team']=races_df[mt_idx].merge(cyclist_df,left_on='cyclist',right_on='_url')[['date','nationality']].apply(map_to_team,axis=1)
+
+    rec_races_df['cyclist_team'].fillna('free-agent',inplace=True)
+
+    rec_races_df.loc[rec_races_df['cyclist_age'].isna(),'cyclist_age']=rec_races_df['cyclist_age'].mean()
+    rec_races_df.loc[rec_races_df['points'].isna(),'points']=rec_races_df['points'].mean()# Crea una copia dei dati rilevanti per l'imputazione
+    df_for_imputation = rec_races_df[['climb_total', 'profile']].copy()
+
+    # Imputa i valori mancanti nella colonna 'climb_total' usando la media
+    imputer_climb = SimpleImputer(strategy='mean')
+    df_for_imputation['climb_total'] = imputer_climb.fit_transform(df_for_imputation[['climb_total']])
+
+    # Calcola la media di 'climb_total' per ogni 'profile'
+    profile_mean_climb_total = df_for_imputation.groupby('profile')['climb_total'].mean()
+    reference_df = profile_mean_climb_total.reset_index()
+    reference_df.columns = ['profile', 'mean_climb_total']
+
+    # Funzione per riempire i valori mancanti nella colonna 'profile' con il profilo più vicino
+    def fill_profile_with_closest(row):
+        if pd.isna(row['profile']):
+            closest_profile = reference_df.iloc[(reference_df['mean_climb_total'] - row['climb_total']).abs().argsort()[:1]]
+            return closest_profile['profile'].values[0]
+        return row['profile']
+
+    # Applica la funzione per imputare i valori mancanti di 'profile'
+    df_for_imputation['profile'] = df_for_imputation.apply(fill_profile_with_closest, axis=1)
+
+    # Aggiorna i dati originali con i valori imputati
+    rec_races_df[['climb_total', 'profile']] = df_for_imputation
+
+    final_df=rec_races_df.drop(columns=['uci_points','average_temperature','is_cobbled','is_gravel'])
+    return final_df
