@@ -80,13 +80,18 @@ def plot_msno_matrix(missing_values_df):
     -------
     None
     """
-    msno.matrix(
-            missing_values_df.set_index('date').sort_index(),
-            sparkline=False,
-            figsize=(10, 30)
-        )
+    # incompatibility with new matplotlib version
+    # this avoids ValueError since it is not possible to change version of the library
+    try:
+        msno.matrix(
+                missing_values_df.set_index('date').sort_index(),
+                sparkline=False,
+                figsize=(10, 30)
+            )
+    except ValueError:
+        pass
     years = list(missing_values_df['date'].dt.year.sort_values().unique())
-    years
+    print(years)
 
     locs, labels = plt.yticks()
 
@@ -95,8 +100,10 @@ def plot_msno_matrix(missing_values_df):
     y_start = locs[0]
     y_end = locs[1]
 
-    y_ticks = np.linspace(y_start, y_end, len(years))
-
+    y_ticks=missing_values_df.sort_values(by='date').groupby(missing_values_df['date'].dt.year.sort_values()).apply(lambda x: x['date'].index[0])
+    missing_values_df=missing_values_df.sort_values(by='date').reset_index()
+    y_ticks=missing_values_df.groupby(missing_values_df['date'].dt.year).apply(lambda x: x.index[0])
+    print(y_ticks)
     plt.yticks(ticks=y_ticks, labels=years)
 
 
@@ -226,15 +233,18 @@ def stages_order(stage):
 
 def handle_missing_df(races_df,cyclist_df):
     rec_races_df=races_df.copy()
+    #cyclist team imputation
+
+    #search missing cuclist
     mt_idx=races_df['cyclist_team'].isna()
 
     def map_to_team(row):
         return f"{row['nationality'].lower()}-{row['date'].year}"
 
     rec_races_df.loc[mt_idx,'cyclist_team']=races_df[mt_idx].merge(cyclist_df,left_on='cyclist',right_on='_url')[['date','nationality']].apply(map_to_team,axis=1)
-
+    #fix still missing cyclists
     rec_races_df['cyclist_team'].fillna('free-agent',inplace=True)
-
+    #impute missing cyclist age and points
     rec_races_df.loc[rec_races_df['cyclist_age'].isna(),'cyclist_age']=rec_races_df['cyclist_age'].mean()
     rec_races_df.loc[rec_races_df['points'].isna(),'points']=rec_races_df['points'].mean()# Crea una copia dei dati rilevanti per l'imputazione
     df_for_imputation = rec_races_df[['climb_total', 'profile']].copy()
