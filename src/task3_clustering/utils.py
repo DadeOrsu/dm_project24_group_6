@@ -6,13 +6,13 @@ from sklearn.metrics import silhouette_score
 import itertools as it
 import numpy as np
 #utils for task 3
-def run_dbscan(min_pts_values,eps_values,metric,clustering_data,precomputed_distances):
+def run_dbscan(min_pts_values,eps_values,metric,clustering_data,precomputed_distances=None):
     results=pd.DataFrame([{}])
     for idx,(eps,metric,min_pts) in enumerate(it.product(eps_values,metric,min_pts_values)):
         labels=DBSCAN(
             eps=eps,
             min_samples=min_pts,
-            metric='precomputed',
+            metric='euclidean',
             n_jobs=-1
         ).fit_predict(precomputed_distances)
         #NOTE: the noisy labels are NOT taken into account 
