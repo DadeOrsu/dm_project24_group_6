@@ -11,11 +11,13 @@ from scipy.spatial.distance import pdist,squareform
 from scipy.sparse import csr_matrix
 from tqdm import tqdm
 import time
+from sklearn.neighbors import NearestNeighbors
 #utils for task 3
 def run_dbscan(min_pts_values,eps_values,metric,clustering_data,precomputed_distances=None):
     results=pd.DataFrame([])
-    dist_matrix = csr_matrix(squareform(pdist(clustering_data,metric='euclidean')))
-    dist_matrix = sort_graph_by_row_values(dist_matrix,warn_when_not_sorted=False)
+
+    nn=NearestNeighbors(n_neighbors=clustering_data.shape[0]-1,n_jobs=-1).fit(csr_matrix(clustering_data))
+    dists=nn.kneighbors_graph(clustering_data)
      
     for idx,(eps,metric,min_pts) in enumerate(it.product(eps_values,metric,min_pts_values)):
         start=time.time()
@@ -25,7 +27,7 @@ def run_dbscan(min_pts_values,eps_values,metric,clustering_data,precomputed_dist
             min_samples=min_pts,
             metric='precomputed',
             n_jobs=-1
-        ).fit_predict(dist_matrix)
+        ).fit_predict(dists)
         end=time.time()
         silhouette_score_val=silhouette_score(clustering_data,labels) if not (labels==labels[0]).all() else "all core" if (labels==1).all() else "all noise" 
         print(f"dbscan done, time={end-start} seconds | silhoutte score:{silhouette_score_val}")
