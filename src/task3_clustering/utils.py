@@ -42,3 +42,16 @@ def run_dbscan(min_pts_values,eps_values,metric,clustering_data,precomputed_dist
             }])
         results=pd.concat([results,new_conf])
     return results
+
+def random_sampling_reduce(data,reduction_percent):
+    num_samples=data.shape[0]
+
+    reduction_num_samples=int(np.ceil(reduction_percent*num_samples))
+
+    RANDOM_SEED=42
+
+    np.random.seed(RANDOM_SEED)
+
+    reduction_idx=np.random.choice(range(len(clustering_data)),reduction_num_samples,replace=False)
+
+    return data.iloc[reduction_idx]
