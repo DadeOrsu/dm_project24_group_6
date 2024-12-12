@@ -21,7 +21,7 @@ def get_train_test_data():
     merged_data['date'] = pd.to_datetime(merged_data['date'])
     # Create the feature set
     columns_to_keep = [
-        'bmi', 'career_points','career_duration(days)','debut_year',
+        'bmi', 'career_points', 'career_duration(days)', 'debut_year',
         'difficulty_score', 'competitive_age', 'is_tarmac', 'points',
         'climbing_efficiency', 'startlist_quality', 'top_20'
     ]
