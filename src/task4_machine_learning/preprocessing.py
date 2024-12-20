@@ -20,6 +20,12 @@ def get_train_test_data():
     merged_data['avg_pos'] = merged_data.groupby('cyclist_x').apply(get_avg_pos).reset_index(level=0, drop=True)
     merged_data['avg_pos'] = merged_data['avg_pos'].fillna(0)
 
+    # refine career_points for the task of prediction
+    merged_data['career_points'] = merged_data.groupby('cyclist_x')['points'].cumsum().shift()
+    merged_data['career_points'] = merged_data['career_points'].fillna(0)
+
+    # refine career_duration(days) for the task of prediction
+    merged_data['career_duration(days)'] = merged_data.groupby('cyclist_x').cumcount()
     # Create the target variable
     merged_data['top_20'] = merged_data['position'].apply(lambda x: 1 if x <= 20 else 0)
 
