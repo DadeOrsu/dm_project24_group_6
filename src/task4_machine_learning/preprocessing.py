@@ -15,6 +15,11 @@ def get_train_test_data():
 
     merged_data = races_data.merge(cyclists_data, left_on='cyclist',
                                    right_on='_url', how='inner')
+
+    # add the new the avg position feature
+    merged_data['avg_pos'] = merged_data.groupby('cyclist_x').apply(get_avg_pos).reset_index(level=0, drop=True)
+    merged_data['avg_pos'] = merged_data['avg_pos'].fillna(0)
+
     # Create the target variable
     merged_data['top_20'] = merged_data['position'].apply(lambda x: 1 if x <= 20 else 0)
 
@@ -23,7 +28,7 @@ def get_train_test_data():
     columns_to_keep = [
         'bmi', 'career_points', 'career_duration(days)', 'debut_year',
         'difficulty_score', 'competitive_age', 'is_tarmac', 'points',
-        'climbing_efficiency', 'startlist_quality', 'top_20'
+        'climbing_efficiency', 'startlist_quality', 'avg_pos', 'top_20'
     ]
     # Split the data into train and test sets based on the date
     train_set = merged_data[merged_data['date'] < '2022-01-01']
@@ -39,3 +44,14 @@ def get_train_test_data():
     y_test = test_set['top_20']
     # Return the train and test sets
     return X_train, y_train, X_test, y_test, columns_to_keep
+
+
+def get_avg_pos(group):
+    """
+    Calculate the average position of a cyclist excluding the current
+    """
+    # calculate the cumulative sum of the positions excluding the current one
+    cumulative_sum = group['position'].cumsum().shift()
+    # cumulative count of the positions excluding the current one
+    cumulative_count = (~group['position'].isna()).cumsum().shift()
+    return cumulative_sum / cumulative_count
