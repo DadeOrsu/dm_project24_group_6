@@ -33,7 +33,7 @@ def get_train_test_data():
     # Create the feature set
     columns_to_keep = [
         'bmi', 'career_points', 'career_duration(days)', 'debut_year',
-        'difficulty_score', 'competitive_age', 'is_tarmac', 'points',
+        'difficulty_score', 'competitive_age', 'is_tarmac',
         'climbing_efficiency', 'startlist_quality', 'avg_pos', 'top_20'
     ]
     # Split the data into train and test sets based on the date
