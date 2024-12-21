@@ -25,7 +25,9 @@ def get_train_test_data():
     merged_data['career_points'] = merged_data['career_points'].fillna(0)
 
     # refine career_duration(days) for the task of prediction
-    merged_data['career_duration(days)'] = merged_data.groupby('cyclist_x').cumcount()
+    merged_data['career_duration(days)'] = merged_data.groupby('cyclist_x').apply(get_career_duration).reset_index(level=0, drop=True)
+    merged_data['career_duration(days)'] = merged_data['career_duration(days)'].fillna(0)
+
     # Create the target variable
     merged_data['top_20'] = merged_data['position'].apply(lambda x: 1 if x <= 20 else 0)
 
@@ -70,3 +72,11 @@ def get_career_points(group):
     # calculate the cumulative sum of the points excluding the current one
     cumulative_sum = group['points'].cumsum().shift()
     return cumulative_sum
+
+
+def get_career_duration(group):
+    """
+    Calculate the career duration of a cyclist excluding the current
+    """
+    # calculate the cumulative sum of the points excluding the current one
+    return (~group['career_duration(days)'].isna()).cumsum().shift()
