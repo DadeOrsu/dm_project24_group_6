@@ -1,35 +1,59 @@
 # 📊 dm_project24_group_6
-Thi is the repository for the group 6 of the Data Mining course 2024/2025 at the University of Pisa. This repository contains the code and the notebooks used for the analysis of the dataset provided for the project.
+This is the repository for the group 6 of the Data Mining course 2024/2025 at the University of Pisa. This repository contains the code and the notebooks used for the analysis of the dataset provided for the project.
+# 👨‍💻 candidates
+- [Mirko Michele D'Angelo]
+- [Filippo Morelli]
+- [Davide Orsucci]
+
 # 🗃️ Repo outline
 The repository is organized as follows:
 ```bash
-📁 Root
-├── 📄 environment.yml
+📂 .
+├── 🛠️ environment.yml
 ├── 📄 project.pdf
-├── 📄 README.md
+├── 📘 README.md
 └── 📂 src
-    ├── 📄 dataframe_types.py
-    ├── 📂 dataset
-    ├── 📄 generic_utils.py
+    ├── 📁 dataset
+    ├── 🐍 generic_utils.py
     ├── 📂 task1_data_understanding
-    │   ├── 📓 cyclist_analysis.ipynb
-    │   ├── 📓 data_distribution_refined.ipynb
-    │   ├── 📄 dataunderstanding.py
-    │   ├── 📓 races_analysis.ipynb
-    │   ├── 📄 transformations.py
-    │   └── 📄 utils.py
+    │   ├── 📒 cyclist_analysis.ipynb
+    │   ├── 📒 data_distribution_refined.ipynb
+    │   ├── 🐍 dataunderstanding.py
+    │   ├── 📒 races_analysis.ipynb
+    │   ├── 🐍 transformations.py
+    │   └── 🐍 utils.py
     ├── 📂 task2_data_transformation
-    │   ├── 📓 feature engineering_cyclists.ipynb
-    │   ├── 📓 feature_engineering.ipynb
-    │   ├── 📓 outlier_detection.ipynb
-    │   ├── 📓 races_understanding.ipynb
-    │   └── 📄 utils.py
-    └── 📂 task3_clustering
-        ├── 📓 dbscan.ipynb
-        ├── 📓 hierarchical.ipynb
-        ├── 📓 kmeans_clustering.ipynb
-        ├── 📄 transformations.py
-        └── 📄 utils.py
+    │   ├── 📒 feature engineering_cyclists.ipynb
+    │   ├── 📒 feature_engineering.ipynb
+    │   ├── 📒 outlier_detection.ipynb
+    │   ├── 📒 races_understanding.ipynb
+    │   └── 🐍 utils.py
+    ├── 📂 task3_clustering
+    │   ├── 📒 dbscan.ipynb
+    │   ├── 📒 hierarchical.ipynb
+    │   ├── 📒 kmeans_clustering.ipynb
+    │   ├── 📒 optics.ipynb
+    │   ├── 🐍 transformations.py
+    │   └── 🐍 utils.py
+    ├── 📂 task4_prediction
+    │   ├── 📒 decisione_trees_classification .ipynb
+    │   ├── 📒 knn_classification.ipynb
+    │   ├── 🗂️ params_dt
+    │   ├── 🗂️ params_knn
+    │   ├── 🗂️ params_ripper
+    │   ├── 📒 ripper_classification.ipynb
+    │   ├── 📒 bagging_classification.ipynb
+    │   ├── 📒 decisione_trees_classification .ipynb
+    │   ├── 📒 nn_classification.ipynb
+    │   ├── 📒 ripper_classification.ipynb
+    │   ├── 📒 boosting.ipynb  
+    │   ├── 🐍 preprocessing.py
+    │   └── 🐍 utils.py
+    └── 📂 task5_xai
+        ├── 📒 bagging_explanation.ipynb
+        ├── 🐍 preprocessing.py
+        ├── 🐍 transformations.py
+        └── 📒 xgbc_explanation.ipynb
 ```
 ## 🔍 Description
 - `environment.yml`: file containing the environment used for the project.
@@ -58,10 +82,29 @@ The repository is organized as follows:
         - `kmeans_clustering.ipynb`: notebook containing the KMeans clustering of the data
         - `transformations.py`: utility functions for the normalization task
         - `utils.py`: utility functions for the clustering task
+    -  `task4_prediction`: folder of files for the fourth task of the project
+        - `decisione_trees_classification .ipynb`: notebook containing the decision tree classification of the data
+        - `knn_classification.ipynb`: notebook containing the KNN classification of the data
+        - `params_dt`: folder containing the parameters for the decision tree classification
+        - `params_knn`: folder containing the parameters for the KNN classification
+        - `params_ripper`: folder containing the parameters for the RIPPER classification
+        - `ripper_classification.ipynb`: notebook containing the RIPPER classification of the data
+        - `bagging_classification.ipynb`: notebook containing the bagging classification of the data
+        - `decisione_trees_classification .ipynb`: notebook containing the decision tree classification of the data
+        - `nn_classification.ipynb`: notebook containing the neural network classification of the data
+        - `ripper_classification.ipynb`: notebook containing the RIPPER classification of the data
+        - `boosting.ipynb`: notebook containing the boosting classification of the data
+        - `preprocessing.py`: utility functions for the preprocessing of the data
+        - `utils.py`: utility functions for the prediction task
+   - `task5_xai`: folder of files for the fifth task of the project
+        - `bagging_explanation.ipynb`: notebook containing the explanation of the bagging classification
+        - `preprocessing.py`: utility functions for the preprocessing of the data
+        - `transformations.py`: utility functions for the normalization task
+        - `xgbc_explanation.ipynb`: notebook containing the explanation of the XGBoost classification
 
 The repository will be updated as the project progresses.
 # Resources 
 
-[download dataset](http://didawiki.cli.di.unipi.it/lib/exe/fetch.php/magistraleinformatica/dmi/dataset.tar)
+[Download Dataset](http://didawiki.cli.di.unipi.it/lib/exe/fetch.php/magistraleinformatica/dmi/dataset.tar)
 
-[download project instructions](http://didawiki.cli.di.unipi.it/lib/exe/fetch.php/magistraleinformatica/dmi/project.pdf)
+[Project Instructions](http://didawiki.cli.di.unipi.it/lib/exe/fetch.php/magistraleinformatica/dmi/project.pdf)
