@@ -1,9 +1,10 @@
 # 📊 dm_project24_group_6
 This is the repository for the group 6 of the Data Mining course 2024/2025 at the University of Pisa. This repository contains the code and the notebooks used for the analysis of the dataset provided for the project.
+You can read our final report here: [Final Report](https://github.com/DadeOrsu/dm_project24_group_6/blob/main/report.pdf)
 # 👨‍💻 candidates
-- [Mirko Michele D'Angelo]
-- [Filippo Morelli]
-- [Davide Orsucci]
+- [Mirko Michele D'Angelo](https://github.com/mirdan08)
+- [Filippo Morelli](https://github.com/ff-falco)
+- [Davide Orsucci](https://github.com/DadeOrsu)
 
 # 🗃️ Repo outline
 The repository is organized as follows:
@@ -43,12 +44,11 @@ The repository is organized as follows:
     │   ├── 🗂️ params_ripper
     │   ├── 📒 ripper_classification.ipynb
     │   ├── 📒 bagging_classification.ipynb
-    │   ├── 📒 decisione_trees_classification .ipynb
+    │   ├── 📒 decision_trees_classification .ipynb
     │   ├── 📒 nn_classification.ipynb
     │   ├── 📒 ripper_classification.ipynb
     │   ├── 📒 boosting.ipynb  
-    │   ├── 🐍 preprocessing.py
-    │   └── 🐍 utils.py
+    │   └──  🐍 preprocessing.py
     └── 📂 task5_xai
         ├── 📒 bagging_explanation.ipynb
         ├── 🐍 preprocessing.py
@@ -83,7 +83,7 @@ The repository is organized as follows:
         - `transformations.py`: utility functions for the normalization task
         - `utils.py`: utility functions for the clustering task
     -  `task4_prediction`: folder of files for the fourth task of the project
-        - `decisione_trees_classification .ipynb`: notebook containing the decision tree classification of the data
+        - `decision_trees_classification .ipynb`: notebook containing the decision tree classification of the data
         - `knn_classification.ipynb`: notebook containing the KNN classification of the data
         - `params_dt`: folder containing the parameters for the decision tree classification
         - `params_knn`: folder containing the parameters for the KNN classification
@@ -95,14 +95,13 @@ The repository is organized as follows:
         - `ripper_classification.ipynb`: notebook containing the RIPPER classification of the data
         - `boosting.ipynb`: notebook containing the boosting classification of the data
         - `preprocessing.py`: utility functions for the preprocessing of the data
-        - `utils.py`: utility functions for the prediction task
    - `task5_xai`: folder of files for the fifth task of the project
         - `bagging_explanation.ipynb`: notebook containing the explanation of the bagging classification
         - `preprocessing.py`: utility functions for the preprocessing of the data
         - `transformations.py`: utility functions for the normalization task
         - `xgbc_explanation.ipynb`: notebook containing the explanation of the XGBoost classification
 
-The repository will be updated as the project progresses.
+
 # Resources 
 
 [Download Dataset](http://didawiki.cli.di.unipi.it/lib/exe/fetch.php/magistraleinformatica/dmi/dataset.tar)
