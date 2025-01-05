@@ -56,12 +56,12 @@ The repository is organized as follows:
         └── 📒 xgbc_explanation.ipynb
 ```
 ## 🔍 Description
+
+The repository contains the following files and folders:
 - `environment.yml`: file containing the environment used for the project.
 - `project.pdf`: file containing the instructions for the project.
 - `README.md`: file containing the description of the repository.
 - `src`: contains folders with scripts and notebooks used for the analysis
-    - `dataframe_types.py`: file containing the definition of the dataframes used for the project.
-    - `generic_utils.py`: file containing utility functions used for the project.
     - `dataset`: folder containing the dataset used for the project.
     - `task1_data_understanding`: folder of files for the first task of the project
         - `cyclist_analysis.ipynb`: notebook containing the analysis of the cyclists' dataframe
